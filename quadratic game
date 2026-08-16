@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>이차함수 그래프 미션 5</title>
+<style>
+:root{
+  --bg:#f4f6f8;
+  --card:#ffffff;
+  --text:#17191d;
+  --muted:#6d7480;
+  --line:#dfe3e8;
+  --target:#555b63;
+  --mine:#2f6fed;
+  --good:#137a42;
+  --bad:#b43d2c;
+  --soft:#f8f9fb;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif;
+}
+.wrap{max-width:1220px;margin:0 auto;padding:20px}
+.header{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  gap:16px;margin-bottom:16px
+}
+h1{margin:0;font-size:25px}
+.sub{color:var(--muted);margin-top:6px;line-height:1.5}
+.progressWrap{min-width:260px}
+.progressText{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
+.progress{height:9px;background:#e8ebef;border-radius:999px;overflow:hidden}
+.progress > div{height:100%;width:0;background:#20242a;transition:.25s}
+.layout{display:grid;grid-template-columns:355px 1fr;gap:16px}
+.card{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.04)
+}
+.panel{padding:18px}
+.mission{
+  padding:13px 14px;border:1px solid var(--line);border-radius:12px;
+  background:var(--soft);font-size:14px;line-height:1.55
+}
+.timerRow{
+  display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0
+}
+.timerBox{
+  border:1px solid var(--line);border-radius:11px;padding:10px 11px;background:#fafafa
+}
+.timerBox small{display:block;color:var(--muted);margin-bottom:2px}
+.timerBox strong{font-size:20px;font-variant-numeric:tabular-nums}
+.eq{
+  text-align:center;margin:12px 0 8px;padding:12px;border-radius:11px;
+  border:1px solid var(--line);font-size:23px;font-weight:800
+}
+.control{margin:16px 0}
+.controlTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.controlTop label{font-weight:800}
+.val{font-weight:900;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%}
+.ticks{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:2px}
+.answerArea{
+  margin-top:15px;padding-top:14px;border-top:1px solid var(--line)
+}
+.answerArea h3{font-size:15px;margin:0 0 9px}
+.answerGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}
+.field input{
+  width:100%;padding:9px 10px;border:1px solid #ccd2d9;border-radius:9px;font-size:15px
+}
+.axisField{grid-column:1/-1}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+button{
+  border:1px solid var(--line);background:#fff;border-radius:10px;
+  padding:10px 8px;font-weight:800;cursor:pointer
+}
+button:hover{background:#f5f7f9}
+button.primary{background:#20242a;color:#fff;border-color:#20242a}
+button.blue{background:var(--mine);color:#fff;border-color:var(--mine)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.feedback{
+  min-height:62px;margin-top:12px;padding:10px 11px;border-radius:10px;
+  background:#fafafa;border:1px solid var(--line);font-size:13px;line-height:1.5
+}
+.feedback.good{background:#effaf3;border-color:#acd8bc;color:#0f6035}
+.feedback.bad{background:#fff3f1;border-color:#efc0b8;color:#8b2f21}
+.graphCard{padding:12px}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:3px 5px 10px
+}
+.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px}
+.legend span{display:flex;align-items:center;gap:6px}
+.swatch{width:22px;height:4px;border-radius:999px;display:inline-block}
+.target{background:var(--target)} .mine{background:var(--mine)}
+canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
+.graphHelp{
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  color:var(--muted);font-size:12px;padding:9px 4px 2px
+}
+.scoreRule{
+  margin-top:14px;padding:11px 12px;border-radius:10px;background:#f7f8fa;
+  border:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.55
+}
+.final{
+  display:none;margin-top:16px;padding:18px
+}
+.final h2{margin:0 0 8px}
+.totalScore{
+  font-size:40px;font-weight:900;margin:8px 0 12px
+}
+.summaryTable{width:100%;border-collapse:collapse;margin-top:12px}
+.summaryTable th,.summaryTable td{
+  border-bottom:1px solid var(--line);padding:9px 8px;text-align:center;font-size:14px
+}
+.summaryTable th{background:#f7f8fa}
+.finalBtns{display:flex;gap:8px;margin-top:14px}
+@media(max-width:900px){
+  .header{align-items:flex-start;flex-direction:column}
+  .progressWrap{width:100%}
+  .layout{grid-template-columns:1fr}
+  canvas{height:470px}
+}
+
+.startOverlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(18,22,28,.78);
+  backdrop-filter:blur(6px);
+}
+.startBox{
+  width:min(520px,92vw);
+  background:#fff;
+  border-radius:20px;
+  padding:28px;
+  text-align:center;
+  box-shadow:0 18px 60px rgba(0,0,0,.28);
+}
+.startBox h2{margin:0 0 10px;font-size:28px}
+.startBox p{margin:0;color:var(--muted);line-height:1.65}
+.startRules{
+  margin:18px 0;
+  padding:14px 16px;
+  text-align:left;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#f7f8fa;
+  line-height:1.65;
+  font-size:14px;
+}
+.startBtn{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:14px 16px;
+  background:#20242a;
+  color:#fff;
+  font-size:17px;
+  font-weight:900;
+  cursor:pointer;
+}
+.startBtn:hover{background:#111418}
+
+</style>
+</head>
+<body>
+
+<div class="startOverlay" id="startOverlay">
+  <div class="startBox">
+    <h2>🎯 이차함수 그래프 미션 5</h2>
+    <p>준비가 되면 시작하세요.<br>버튼을 누르는 순간 1번 문제의 시간이 측정됩니다.</p>
+    <div class="startRules">
+      • 총 5문제입니다.<br>
+      • 목표 그래프와 겹치도록 a, p, q를 조절합니다.<br>
+      • 꼭짓점과 대칭축까지 모두 맞혀야 정답입니다.<br>
+      • 새로 시작할 때마다 최근에 풀었던 문제는 피해서 다른 문제가 출제됩니다.<br>
+      • 30초 이내는 100점, 이후 점수가 빠르게 감소합니다.<br>
+      • 130초부터는 0점입니다.
+    </div>
+    <button class="startBtn" id="startGameBtn">시작하기</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="header">
+    <div>
+      <h1>🎯 이차함수 그래프 미션 5</h1>
+      <div class="sub">
+        회색 목표 그래프와 겹치도록 <b>a, p, q</b>를 조절한 뒤,
+        <b>꼭짓점과 대칭축</b>까지 입력하세요.
+      </div>
+    </div>
+    <div class="progressWrap">
+      <div class="progressText">
+        <span id="questionLabel">1 / 6 문제</span>
+        <span id="scoreLabel">현재 총점 0점</span>
+      </div>
+      <div class="progress"><div id="progressBar"></div></div>
+    </div>
+  </div>
+
+  <div class="layout" id="gameArea">
+    <section class="card panel">
+      <div class="mission">
+        <b>목표 함수는 숨겨져 있습니다.</b><br>
+        목표 그래프의 <b>방향·폭·꼭짓점</b>을 관찰하여
+        \(y=a(x-p)^2+q\)의 a, p, q를 찾아보세요.
+      </div>
+
+      <div class="timerRow">
+        <div class="timerBox">
+          <small>현재 문제 시간</small>
+          <strong id="timer">0.0초</strong>
+        </div>
+        <div class="timerBox">
+          <small>현재 예상 점수</small>
+          <strong id="liveScore">100점</strong>
+        </div>
+      </div>
+
+      <div class="eq" id="myEq">y = (x)²</div>
+
+      <div class="control">
+        <div class="controlTop"><label>a</label><span class="val" id="aVal">1</span></div>
+        <input id="aSlider" type="range" min="0" max="7" step="1" value="5">
+        <div class="ticks"><span>-3</span><span>-1</span><span>0.5</span><span>3</span></div>
+      </div>
+
+      <div class="control">
+        <div class="controlTop"><label>p</label><span class="val" id="pVal">0</span></div>
+        <input id="pSlider" type="range" min="-5" max="5" step="1" value="0">
+        <div class="ticks"><span>-5</span><span>0</span><span>5</span></div>
+      </div>
+
+      <div class="control">
+        <div class="controlTop"><label>q</label><span class="val" id="qVal">0</span></div>
+        <input id="qSlider" type="range" min="-5" max="5" step="1" value="0">
+        <div class="ticks"><span>-5</span><span>0</span><span>5</span></div>
+      </div>
+
+      <div class="answerArea">
+        <h3>그래프를 찾았다면 직접 쓰기</h3>
+        <div class="answerGrid">
+          <div class="field">
+            <label>꼭짓점 x좌표</label>
+            <input id="vxInput" type="number" step="1" placeholder="예: 2">
+          </div>
+          <div class="field">
+            <label>꼭짓점 y좌표</label>
+            <input id="vyInput" type="number" step="1" placeholder="예: -3">
+          </div>
+          <div class="field axisField">
+            <label>대칭축 x = ?</label>
+            <input id="axisInput" type="number" step="1" placeholder="예: 2">
+          </div>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="blue" id="submitBtn">정답 제출</button>
+        <button id="resetBtn">내 그래프 초기화</button>
+      </div>
+
+      <div class="feedback" id="feedback">
+        그래프의 꼭짓점을 먼저 찾은 다음, 그래프가 위로 열리는지 아래로 열리는지와 폭을 비교해 보세요.
+      </div>
+
+      <div class="scoreRule">
+        <b>점수 규칙</b><br>
+        30초 이내 정답은 100점입니다. 이후 점수가 더 빠르게 감소하며
+        130초부터는 0점입니다. 오답을 제출해도 별도 감점은 없지만 시간은 계속 흐릅니다.
+      </div>
+    </section>
+
+    <section class="card graphCard">
+      <div class="topbar">
+        <div class="legend">
+          <span><i class="swatch target"></i> 목표 그래프</span>
+          <span><i class="swatch mine"></i> 내가 만든 그래프</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted)">좌표 범위: -10 ~ 10</div>
+      </div>
+      <canvas id="graph"></canvas>
+      <div class="graphHelp">
+        <span>목표 함수식은 정답을 맞힌 뒤 공개됩니다.</span>
+        <span>a: 방향·폭 / p: 좌·우 이동 / q: 위·아래 이동</span>
+      </div>
+    </section>
+  </div>
+
+  <section class="card final" id="finalScreen">
+    <h2>🏁 5문제 완료!</h2>
+    <div>각 문제의 풀이 시간과 점수를 합산한 결과입니다.</div>
+    <div class="totalScore" id="finalTotal">0 / 500점</div>
+    <div id="finalComment"></div>
+
+    <table class="summaryTable">
+      <thead>
+        <tr>
+          <th>문제</th>
+          <th>정답 함수</th>
+          <th>걸린 시간</th>
+          <th>점수</th>
+        </tr>
+      </thead>
+      <tbody id="summaryBody"></tbody>
+    </table>
+
+    <div class="finalBtns">
+      <button class="primary" id="restartBtn">5문제 다시 시작</button>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const TOTAL = 5;
+  const aValues = [-3,-2,-1,-0.5,0.5,1,2,3];
+
+  const canvas = document.getElementById('graph');
+  const ctx = canvas.getContext('2d');
+
+  const aSlider = document.getElementById('aSlider');
+  const pSlider = document.getElementById('pSlider');
+  const qSlider = document.getElementById('qSlider');
+
+  const aVal = document.getElementById('aVal');
+  const pVal = document.getElementById('pVal');
+  const qVal = document.getElementById('qVal');
+  const myEq = document.getElementById('myEq');
+
+  const vxInput = document.getElementById('vxInput');
+  const vyInput = document.getElementById('vyInput');
+  const axisInput = document.getElementById('axisInput');
+
+  const timerEl = document.getElementById('timer');
+  const liveScoreEl = document.getElementById('liveScore');
+  const feedback = document.getElementById('feedback');
+  const questionLabel = document.getElementById('questionLabel');
+  const scoreLabel = document.getElementById('scoreLabel');
+  const progressBar = document.getElementById('progressBar');
+
+  const finalScreen = document.getElementById('finalScreen');
+  const gameArea = document.getElementById('gameArea');
+  const finalTotal = document.getElementById('finalTotal');
+  const finalComment = document.getElementById('finalComment');
+  const summaryBody = document.getElementById('summaryBody');
+
+  let myA=1,myP=0,myQ=0;
+  let targetA=1,targetP=0,targetQ=0;
+
+  let current=0;
+  let totalScore=0;
+  let results=[];
+  let usedTargets=new Set();
+
+  // 같은 브라우저에서 다시 시도할 때도 최근 문제와 겹치지 않도록 기억
+  const HISTORY_KEY='quadratic_mission_recent_targets_v1';
+  let recentTargets=[];
+  try{
+    recentTargets=JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    if(!Array.isArray(recentTargets)) recentTargets=[];
+  }catch(e){
+    recentTargets=[];
+  }
+
+  function rememberTarget(key){
+    recentTargets.push(key);
+    // 가능한 문제 수가 충분하므로 최근 40문제는 재출제하지 않음
+    if(recentTargets.length>40) recentTargets=recentTargets.slice(-40);
+    try{
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(recentTargets));
+    }catch(e){}
+  }
+
+  let startTime=performance.now();
+  let timerHandle=null;
+  let locked=false;
+  let gameStarted=false;
+
+  let cssW=800,cssH=570,dpr=1;
+  const minX=-10,maxX=10,minY=-10,maxY=10;
+
+  function clean(n){
+    return Number.isInteger(n) ? String(n) : String(Number(n.toFixed(2)));
+  }
+
+  function equation(a,p,q){
+    const aPart = a===1 ? '' : a===-1 ? '-' : clean(a);
+    let inside='x';
+    if(p>0) inside=`x − ${clean(p)}`;
+    else if(p<0) inside=`x + ${clean(-p)}`;
+    let tail='';
+    if(q>0) tail=` + ${clean(q)}`;
+    else if(q<0) tail=` − ${clean(-q)}`;
+    return `y = ${aPart}(${inside})²${tail}`;
+  }
+
+  function scoreFromSeconds(sec){
+    if(sec <= 30) return 100;
+    if(sec >= 180) return 0;
+    return Math.max(0, Math.round(100 * (180-sec) / 150));
+  }
+
+  function elapsedSeconds(){
+    return (performance.now()-startTime)/1000;
+  }
+
+  function updateTimer(){
+    if(locked || !gameStarted) return;
+    const sec=elapsedSeconds();
+    timerEl.textContent=`${sec.toFixed(1)}초`;
+    liveScoreEl.textContent=`${scoreFromSeconds(sec)}점`;
+  }
+
+  function xToPx(x){ return (x-minX)/(maxX-minX)*cssW; }
+  function yToPx(y){ return cssH-(y-minY)/(maxY-minY)*cssH; }
+
+  function drawGrid(){
+    ctx.clearRect(0,0,cssW,cssH);
+    ctx.fillStyle='#fff';
+    ctx.fillRect(0,0,cssW,cssH);
+
+    ctx.strokeStyle='#edf0f3';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    for(let x=-10;x<=10;x++){
+      const px=xToPx(x); ctx.moveTo(px,0); ctx.lineTo(px,cssH);
+    }
+    for(let y=-10;y<=10;y++){
+      const py=yToPx(y); ctx.moveTo(0,py); ctx.lineTo(cssW,py);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle='#707781';
+    ctx.lineWidth=1.6;
+    ctx.beginPath();
+    ctx.moveTo(xToPx(0),0); ctx.lineTo(xToPx(0),cssH);
+    ctx.moveTo(0,yToPx(0)); ctx.lineTo(cssW,yToPx(0));
+    ctx.stroke();
+
+    ctx.fillStyle='#737a84';
+    ctx.font='12px system-ui';
+    ctx.textAlign='center';
+    ctx.textBaseline='top';
+    for(let x=-10;x<=10;x+=2){
+      if(x!==0) ctx.fillText(String(x),xToPx(x),yToPx(0)+5);
+    }
+    ctx.textAlign='right';
+    ctx.textBaseline='middle';
+    for(let y=-10;y<=10;y+=2){
+      if(y!==0) ctx.fillText(String(y),xToPx(0)-6,yToPx(y));
+    }
+  }
+
+  function plot(a,p,q,color,width,dash=[]){
+    ctx.save();
+    ctx.strokeStyle=color;
+    ctx.lineWidth=width;
+    ctx.setLineDash(dash);
+    ctx.beginPath();
+
+    let started=false;
+    const samples=Math.max(900,Math.floor(cssW*1.6));
+
+    for(let i=0;i<=samples;i++){
+      const x=minX+(maxX-minX)*i/samples;
+      const y=a*(x-p)*(x-p)+q;
+
+      if(!Number.isFinite(y) || y<minY-3 || y>maxY+3){
+        started=false;
+        continue;
+      }
+      const px=xToPx(x), py=yToPx(y);
+      if(!started){ctx.moveTo(px,py);started=true;}
+      else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function draw(){
+    drawGrid();
+
+    // 목표 그래프를 먼저 그리고, 내 그래프를 위에 그림.
+    plot(targetA,targetP,targetQ,'#555b63',4.6);
+    plot(myA,myP,myQ,'#2f6fed',3.2);
+
+    // 목표 꼭짓점은 그래프 관찰을 위해 점으로 표시.
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(xToPx(targetP),yToPx(targetQ),6.5,0,Math.PI*2);
+    ctx.fillStyle='#fff';
+    ctx.fill();
+    ctx.strokeStyle='#555b63';
+    ctx.lineWidth=3;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function resizeCanvas(){
+    const rect=canvas.getBoundingClientRect();
+    dpr=window.devicePixelRatio || 1;
+    cssW=rect.width;
+    cssH=rect.height;
+    canvas.width=Math.round(cssW*dpr);
+    canvas.height=Math.round(cssH*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    draw();
+  }
+
+  function syncMy(){
+    myA=aValues[Number(aSlider.value)];
+    myP=Number(pSlider.value);
+    myQ=Number(qSlider.value);
+
+    aVal.textContent=clean(myA);
+    pVal.textContent=clean(myP);
+    qVal.textContent=clean(myQ);
+    myEq.textContent=equation(myA,myP,myQ);
+    draw();
+  }
+
+  function resetMy(){
+    aSlider.value='5'; // a=1
+    pSlider.value='0';
+    qSlider.value='0';
+    vxInput.value='';
+    vyInput.value='';
+    axisInput.value='';
+    syncMy();
+  }
+
+  function createTarget(){
+    let key='';
+    let guard=0;
+    do{
+      targetA=aValues[Math.floor(Math.random()*aValues.length)];
+      targetP=Math.floor(Math.random()*9)-4; // -4~4
+      targetQ=Math.floor(Math.random()*9)-4;
+      key=`${targetA}|${targetP}|${targetQ}`;
+      guard++;
+
+      // 혹시 최근 문제 기록이 너무 많아도 무한 반복되지 않게 안전장치
+      if(guard>1500){
+        recentTargets=[];
+        try{ localStorage.removeItem(HISTORY_KEY); }catch(e){}
+        guard=0;
+      }
+    }while(
+      usedTargets.has(key) ||
+      recentTargets.includes(key) ||
+      (targetA===1 && targetP===0 && targetQ===0)
+    );
+
+    usedTargets.add(key);
+    rememberTarget(key);
+  }
+
+  function setControlsDisabled(disabled){
+    aSlider.disabled=disabled;
+    pSlider.disabled=disabled;
+    qSlider.disabled=disabled;
+    vxInput.disabled=disabled;
+    vyInput.disabled=disabled;
+    axisInput.disabled=disabled;
+    document.getElementById('submitBtn').disabled=disabled;
+    document.getElementById('resetBtn').disabled=disabled;
+  }
+
+  function startQuestion(){
+    locked=false;
+    createTarget();
+    resetMy();
+    setControlsDisabled(false);
+
+    questionLabel.textContent=`${current+1} / ${TOTAL} 문제`;
+    scoreLabel.textContent=`현재 총점 ${totalScore}점`;
+    progressBar.style.width=`${current/TOTAL*100}%`;
+
+    feedback.className='feedback';
+    feedback.innerHTML=
+      '<b>새 문제입니다.</b><br>목표 그래프와 겹치도록 슬라이더를 조절한 뒤 꼭짓점과 대칭축을 입력하세요.';
+
+    clearInterval(timerHandle);
+    if(gameStarted){
+      startTime=performance.now();
+      timerHandle=setInterval(updateTimer,100);
+      updateTimer();
+    }else{
+      timerEl.textContent='0.0초';
+      liveScoreEl.textContent='100점';
+    }
+    draw();
+  }
+
+  function exactGraphMatch(){
+    return myA===targetA && myP===targetP && myQ===targetQ;
+  }
+
+  function numericValue(input){
+    if(input.value.trim()==='') return null;
+    const n=Number(input.value);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  function submitAnswer(){
+    if(locked) return;
+
+    const vx=numericValue(vxInput);
+    const vy=numericValue(vyInput);
+    const axis=numericValue(axisInput);
+
+    const graphOK=exactGraphMatch();
+    const vertexOK=(vx===targetP && vy===targetQ);
+    const axisOK=(axis===targetP);
+
+    if(graphOK && vertexOK && axisOK){
+      locked=true;
+      clearInterval(timerHandle);
+
+      const sec=elapsedSeconds();
+      const score=scoreFromSeconds(sec);
+      totalScore+=score;
+
+      results.push({
+        n:current+1,
+        a:targetA,p:targetP,q:targetQ,
+        sec:sec,
+        score:score,
+        eq:equation(targetA,targetP,targetQ)
+      });
+
+      setControlsDisabled(true);
+      timerEl.textContent=`${sec.toFixed(1)}초`;
+      liveScoreEl.textContent=`${score}점`;
+      scoreLabel.textContent=`현재 총점 ${totalScore}점`;
+      progressBar.style.width=`${(current+1)/TOTAL*100}%`;
+
+      feedback.className='feedback good';
+      feedback.innerHTML=
+        `<b>✓ 정답! ${score}점 획득</b><br>`+
+        `정답 함수: <b>${equation(targetA,targetP,targetQ)}</b><br>`+
+        `꼭짓점 (${clean(targetP)}, ${clean(targetQ)}), 대칭축 x = ${clean(targetP)}`;
+
+      setTimeout(()=>{
+        current++;
+        if(current<TOTAL) startQuestion();
+        else showFinal();
+      },1800);
+
+    }else{
+      const notes=[];
+
+      if(!graphOK){
+        if(myP===targetP && myQ===targetQ){
+          notes.push('그래프의 꼭짓점 위치는 맞지만 a를 다시 확인해 보세요.');
+        }else{
+          notes.push('내 그래프가 아직 목표 그래프와 완전히 겹치지 않았습니다.');
+        }
+      }
+      if(graphOK && !vertexOK){
+        notes.push('그래프는 맞았습니다. 꼭짓점 좌표를 다시 써 보세요.');
+      }
+      if(graphOK && vertexOK && !axisOK){
+        notes.push('그래프와 꼭짓점은 맞았습니다. 대칭축을 다시 생각해 보세요.');
+      }
+      if(vx===null || vy===null || axis===null){
+        notes.push('꼭짓점과 대칭축을 모두 입력해야 합니다.');
+      }
+
+      feedback.className='feedback bad';
+      feedback.innerHTML=`<b>아직 정답이 아닙니다.</b><br>${notes.join('<br>')}`;
+    }
+  }
+
+  function showFinal(){
+    clearInterval(timerHandle);
+    gameArea.style.display='none';
+    finalScreen.style.display='block';
+    questionLabel.textContent='5 / 5 문제 완료';
+    progressBar.style.width='100%';
+    scoreLabel.textContent=`최종 ${totalScore}점`;
+
+    finalTotal.textContent=`${totalScore} / 500점`;
+
+    const avg=Math.round(totalScore/TOTAL);
+    let comment='';
+    if(avg>=90) comment='그래프의 평행이동과 꼭짓점·대칭축의 관계를 매우 빠르고 정확하게 파악했습니다.';
+    else if(avg>=75) comment='그래프의 특징을 잘 파악했습니다. a의 크기에 따른 폭까지 빠르게 비교하면 더 높은 점수를 얻을 수 있습니다.';
+    else if(avg>=50) comment='개념은 잘 적용하고 있습니다. 먼저 꼭짓점으로 p, q를 정한 뒤 a를 조절하는 전략을 사용해 보세요.';
+    else comment='시간보다 정확한 관찰이 먼저입니다. 꼭짓점 → 열리는 방향 → 그래프의 폭 순으로 확인해 보세요.';
+    finalComment.textContent=comment;
+
+    summaryBody.innerHTML='';
+    results.forEach(r=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=
+        `<td>${r.n}</td>`+
+        `<td>${r.eq}</td>`+
+        `<td>${r.sec.toFixed(1)}초</td>`+
+        `<td><b>${r.score}점</b></td>`;
+      summaryBody.appendChild(tr);
+    });
+  }
+
+  function restart(){
+    current=0;
+    totalScore=0;
+    results=[];
+    usedTargets=new Set();
+    gameStarted=false;
+
+    clearInterval(timerHandle);
+    finalScreen.style.display='none';
+    gameArea.style.display='grid';
+    document.getElementById('startOverlay').style.display='flex';
+    startQuestion();
+    resizeCanvas();
+  }
+
+  [aSlider,pSlider,qSlider].forEach(el=>el.addEventListener('input',syncMy));
+  document.getElementById('submitBtn').addEventListener('click',submitAnswer);
+  document.getElementById('resetBtn').addEventListener('click',()=>{
+    resetMy();
+    feedback.className='feedback';
+    feedback.textContent='내 그래프를 초기화했습니다. 목표 그래프를 다시 관찰해 보세요.';
+  });
+  document.getElementById('restartBtn').addEventListener('click',restart);
+
+  document.getElementById('startGameBtn').addEventListener('click',()=>{
+    gameStarted=true;
+    document.getElementById('startOverlay').style.display='none';
+    startTime=performance.now();
+    clearInterval(timerHandle);
+    timerHandle=setInterval(updateTimer,100);
+    updateTimer();
+  });
+
+  [vxInput,vyInput,axisInput].forEach(el=>{
+    el.addEventListener('keydown',e=>{
+      if(e.key==='Enter') submitAnswer();
+    });
+  });
+
+  window.addEventListener('resize',resizeCanvas);
+
+  startQuestion();
+  requestAnimationFrame(resizeCanvas);
+})();
+</script>
+</body>
+</html>
