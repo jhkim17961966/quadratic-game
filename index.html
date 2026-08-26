@@ -73,6 +73,24 @@ input[type=range]{width:100%}
 .field input{
   width:100%;padding:9px 10px;border:1px solid #ccd2d9;border-radius:9px;font-size:15px
 }
+.answerInputRow{
+  display:grid;
+  grid-template-columns:1fr 42px;
+  gap:6px;
+  align-items:center;
+}
+.minusBtn{
+  width:42px;
+  height:40px;
+  padding:0;
+  border:1px solid #ccd2d9;
+  border-radius:9px;
+  background:#f7f8fa;
+  font-size:24px;
+  font-weight:900;
+  line-height:1;
+}
+.minusBtn:hover{background:#eceff3}
 .axisField{grid-column:1/-1}
 .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 button{
@@ -253,19 +271,31 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
         <div class="answerGrid">
           <div class="field">
             <label>a값</label>
-            <input id="aInput" type="text" inputmode="decimal" placeholder="예: -0.5" autocomplete="off">
+            <div class="answerInputRow">
+              <input id="aInput" type="text" inputmode="decimal" placeholder="예: 0.5" autocomplete="off">
+              <button type="button" class="minusBtn" data-target="aInput" aria-label="a값 음수 입력">−</button>
+            </div>
           </div>
           <div class="field">
             <label>꼭짓점 x좌표</label>
-            <input id="vxInput" type="text" inputmode="decimal" placeholder="예: -2" autocomplete="off">
+            <div class="answerInputRow">
+              <input id="vxInput" type="text" inputmode="decimal" placeholder="예: 2" autocomplete="off">
+              <button type="button" class="minusBtn" data-target="vxInput" aria-label="꼭짓점 x좌표 음수 입력">−</button>
+            </div>
           </div>
           <div class="field">
             <label>꼭짓점 y좌표</label>
-            <input id="vyInput" type="text" inputmode="decimal" placeholder="예: -3" autocomplete="off">
+            <div class="answerInputRow">
+              <input id="vyInput" type="text" inputmode="decimal" placeholder="예: 3" autocomplete="off">
+              <button type="button" class="minusBtn" data-target="vyInput" aria-label="꼭짓점 y좌표 음수 입력">−</button>
+            </div>
           </div>
           <div class="field axisField">
             <label>대칭축 x = ?</label>
-            <input id="axisInput" type="text" inputmode="decimal" placeholder="예: -2" autocomplete="off">
+            <div class="answerInputRow">
+              <input id="axisInput" type="text" inputmode="decimal" placeholder="예: 2" autocomplete="off">
+              <button type="button" class="minusBtn" data-target="axisInput" aria-label="대칭축 음수 입력">−</button>
+            </div>
           </div>
         </div>
       </div>
@@ -583,6 +613,7 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
     axisInput.disabled=disabled;
     document.getElementById('submitBtn').disabled=disabled;
     document.getElementById('resetBtn').disabled=disabled;
+    document.querySelectorAll('.minusBtn').forEach(btn=>btn.disabled=disabled);
   }
 
   function startQuestion(){
@@ -757,6 +788,31 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
     feedback.textContent='내 그래프를 초기화했습니다. 목표 그래프를 다시 관찰해 보세요.';
   });
   document.getElementById('restartBtn').addEventListener('click',restart);
+
+  // 정답 입력칸의 전용 음수(−) 버튼
+  document.querySelectorAll('.minusBtn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const input=document.getElementById(btn.dataset.target);
+      if(!input || input.disabled) return;
+
+      let v=input.value.trim();
+
+      // 비어 있으면 '-'부터 입력
+      if(v===''){
+        input.value='-';
+      }else if(v.startsWith('-')){
+        // 이미 음수라면 양수로 되돌림
+        input.value=v.slice(1);
+      }else{
+        // 양수라면 음수로 변경
+        input.value='-'+v;
+      }
+
+      input.focus();
+      const len=input.value.length;
+      try{ input.setSelectionRange(len,len); }catch(e){}
+    });
+  });
 
   document.getElementById('startGameBtn').addEventListener('click',()=>{
     gameStarted=true;
