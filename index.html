@@ -197,7 +197,7 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
       <h1>🎯 이차함수 그래프 미션 5</h1>
       <div class="sub">
         회색 목표 그래프와 겹치도록 <b>a, p, q</b>를 조절한 뒤,
-        <b>꼭짓점과 대칭축</b>까지 입력하세요.
+        <b>a값, 꼭짓점과 대칭축</b>까지 입력하세요.
       </div>
     </div>
     <div class="progressWrap">
@@ -252,16 +252,20 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
         <h3>그래프를 찾았다면 직접 쓰기</h3>
         <div class="answerGrid">
           <div class="field">
+            <label>a값</label>
+            <input id="aInput" type="text" inputmode="decimal" placeholder="예: -0.5" autocomplete="off">
+          </div>
+          <div class="field">
             <label>꼭짓점 x좌표</label>
-            <input id="vxInput" type="number" step="1" placeholder="예: 2">
+            <input id="vxInput" type="text" inputmode="decimal" placeholder="예: -2" autocomplete="off">
           </div>
           <div class="field">
             <label>꼭짓점 y좌표</label>
-            <input id="vyInput" type="number" step="1" placeholder="예: -3">
+            <input id="vyInput" type="text" inputmode="decimal" placeholder="예: -3" autocomplete="off">
           </div>
           <div class="field axisField">
             <label>대칭축 x = ?</label>
-            <input id="axisInput" type="number" step="1" placeholder="예: 2">
+            <input id="axisInput" type="text" inputmode="decimal" placeholder="예: -2" autocomplete="off">
           </div>
         </div>
       </div>
@@ -339,6 +343,7 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
   const qVal = document.getElementById('qVal');
   const myEq = document.getElementById('myEq');
 
+  const aInput = document.getElementById('aInput');
   const vxInput = document.getElementById('vxInput');
   const vyInput = document.getElementById('vyInput');
   const axisInput = document.getElementById('axisInput');
@@ -535,6 +540,7 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
     aSlider.value='5'; // a=1
     pSlider.value='0';
     qSlider.value='0';
+    aInput.value='';
     vxInput.value='';
     vyInput.value='';
     axisInput.value='';
@@ -571,6 +577,7 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
     aSlider.disabled=disabled;
     pSlider.disabled=disabled;
     qSlider.disabled=disabled;
+    aInput.disabled=disabled;
     vxInput.disabled=disabled;
     vyInput.disabled=disabled;
     axisInput.disabled=disabled;
@@ -590,7 +597,7 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
 
     feedback.className='feedback';
     feedback.innerHTML=
-      '<b>새 문제입니다.</b><br>목표 그래프와 겹치도록 슬라이더를 조절한 뒤 꼭짓점과 대칭축을 입력하세요.';
+      '<b>새 문제입니다.</b><br>목표 그래프와 겹치도록 슬라이더를 조절한 뒤 a값, 꼭짓점과 대칭축을 입력하세요.';
 
     clearInterval(timerHandle);
     if(gameStarted){
@@ -609,23 +616,33 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
   }
 
   function numericValue(input){
-    if(input.value.trim()==='') return null;
-    const n=Number(input.value);
+    let raw=input.value.trim();
+    if(raw==='') return null;
+
+    // 한글/모바일 키보드에서 들어올 수 있는 여러 종류의 마이너스 기호를 일반 '-'로 통일
+    raw=raw
+      .replace(/[−–—﹣－]/g,'-')
+      .replace(/,/g,'.')
+      .replace(/\s+/g,'');
+
+    const n=Number(raw);
     return Number.isFinite(n) ? n : null;
   }
 
   function submitAnswer(){
     if(locked) return;
 
+    const aAnswer=numericValue(aInput);
     const vx=numericValue(vxInput);
     const vy=numericValue(vyInput);
     const axis=numericValue(axisInput);
 
     const graphOK=exactGraphMatch();
+    const aOK=(aAnswer===targetA);
     const vertexOK=(vx===targetP && vy===targetQ);
     const axisOK=(axis===targetP);
 
-    if(graphOK && vertexOK && axisOK){
+    if(graphOK && aOK && vertexOK && axisOK){
       locked=true;
       clearInterval(timerHandle);
 
@@ -669,14 +686,17 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
           notes.push('내 그래프가 아직 목표 그래프와 완전히 겹치지 않았습니다.');
         }
       }
-      if(graphOK && !vertexOK){
-        notes.push('그래프는 맞았습니다. 꼭짓점 좌표를 다시 써 보세요.');
+      if(graphOK && !aOK){
+        notes.push('그래프는 맞았습니다. 입력한 a값을 다시 확인해 보세요.');
       }
-      if(graphOK && vertexOK && !axisOK){
-        notes.push('그래프와 꼭짓점은 맞았습니다. 대칭축을 다시 생각해 보세요.');
+      if(graphOK && aOK && !vertexOK){
+        notes.push('그래프와 a값은 맞았습니다. 꼭짓점 좌표를 다시 써 보세요.');
       }
-      if(vx===null || vy===null || axis===null){
-        notes.push('꼭짓점과 대칭축을 모두 입력해야 합니다.');
+      if(graphOK && aOK && vertexOK && !axisOK){
+        notes.push('그래프, a값, 꼭짓점은 맞았습니다. 대칭축을 다시 생각해 보세요.');
+      }
+      if(aAnswer===null || vx===null || vy===null || axis===null){
+        notes.push('a값, 꼭짓점, 대칭축을 모두 입력해야 합니다.');
       }
 
       feedback.className='feedback bad';
@@ -747,7 +767,7 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
     updateTimer();
   });
 
-  [vxInput,vyInput,axisInput].forEach(el=>{
+  [aInput,vxInput,vyInput,axisInput].forEach(el=>{
     el.addEventListener('keydown',e=>{
       if(e.key==='Enter') submitAnswer();
     });
