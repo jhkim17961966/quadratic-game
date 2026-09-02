@@ -202,7 +202,8 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
       • 목표 그래프와 겹치도록 a, p, q를 조절합니다.<br>
       • 꼭짓점과 대칭축까지 모두 맞혀야 정답입니다.<br>
       • 새로 시작할 때마다 최근에 풀었던 문제는 피해서 다른 문제가 출제됩니다.<br>
-      • 15초 이내는 100점, 이후 점수가 빠르게 감소합니다.<br>
+      • 8초 이내는 100점, 18초까지 90점으로 빠르게 감소합니다.<br>
+      • 이후에는 완만하게 감소하여 60초까지 80점 이상입니다.<br>
       • 130초부터는 0점입니다.
     </div>
     <button class="startBtn" id="startGameBtn">시작하기</button>
@@ -311,8 +312,9 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
 
       <div class="scoreRule">
         <b>점수 규칙</b><br>
-        15초 이내 정답은 100점입니다. 이후 점수가 더 빠르게 감소하며
-        130초부터는 0점입니다. 오답을 제출해도 별도 감점은 없지만 시간은 계속 흐릅니다.
+        8초 이내 정답은 100점입니다. 이후 18초까지 90점으로 빠르게 감소하고,
+        그 뒤에는 완만하게 감소하여 60초까지 80점 이상입니다. 130초부터는 0점입니다.
+        오답을 제출해도 별도 감점은 없지만 시간은 계속 흐릅니다.
       </div>
     </section>
 
@@ -442,9 +444,21 @@ canvas{width:100%;height:570px;display:block;background:#fff;border-radius:12px}
   }
 
   function scoreFromSeconds(sec){
-    if(sec <= 15) return 100;
+    if(sec <= 8) return 100;
     if(sec >= 130) return 0;
-    return Math.max(0, Math.round(100 * (130-sec) / 115));
+
+    // 8~18초: 100점에서 90점까지 빠르게 감소
+    if(sec <= 18){
+      return Math.round(100 - (sec-8));
+    }
+
+    // 18~60초: 90점에서 80점까지 완만하게 감소
+    if(sec <= 60){
+      return Math.round(90 - (sec-18) * 10 / 42);
+    }
+
+    // 60~130초: 80점에서 0점까지 감소
+    return Math.max(0, Math.round(80 * (130-sec) / 70));
   }
 
   function elapsedSeconds(){
